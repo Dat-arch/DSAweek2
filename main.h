@@ -6,6 +6,9 @@
 #include <string>
 #include <stdexcept>
 #include "utils.h"
+#include <vector>
+#include <numeric>
+#include <algorithm>
 
 class cursor_error : public std::logic_error
 {
