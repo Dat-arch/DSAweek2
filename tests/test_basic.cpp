@@ -1,5 +1,5 @@
 #include "doctest/doctest.h"
-#include "include/DoublyLinkedList.h"
+#include "src/DoublyLinkedList.h"
 
 TEST_SUITE("DoublyLinkedList Basic Operations")
 {
