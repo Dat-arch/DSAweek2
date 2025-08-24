@@ -42,6 +42,7 @@ public:
         Node *current;
 
     public:
+
         Iterator(Node *node) : current(node) {}
 
         T &operator*() const
@@ -55,10 +56,24 @@ public:
             return *this;
         }
 
+        Iterator operator++(int)
+        {
+            Iterator tmp = *this;
+            current = current->next;
+            return tmp;
+        }
+
         Iterator &operator--()
         {
             current = current->prev;
             return *this;
+        }
+
+        Iterator operator--(int)
+        {
+            Iterator tmp = *this;
+            current = current->prev;
+            return tmp;
         }
 
         bool operator==(const Iterator &other) const
