@@ -1,5 +1,5 @@
 #include "doctest/doctest.h"
-#include "src/DoublyLinkedList.h"
+#include "include/DoublyLinkedList.h"
 
 TEST_SUITE("DoublyLinkedList Basic Operations")
 {
@@ -50,8 +50,6 @@ TEST_SUITE("DoublyLinkedList Basic Operations")
         }
     }
 }
-
-
 
 TEST_SUITE("DoublyLinkedList<Point> Operations")
 {
@@ -187,16 +185,14 @@ TEST_SUITE("DoublyLinkedList - Extended Tests")
     {
         // even
         DoublyLinkedList<int> even;
-        int even_vals[] = {1, 2, 3, 4};
-        for (int idx = 0; idx < 4; ++idx) even.insertAtTail(even_vals[idx]); // [1,2,3,4]
+        for (int i : {1,2,3,4}) even.insertAtTail(i);        // [1,2,3,4]
         even.reverse();                                      // [4,3,2,1]
         CHECK(even.get(0) == 4);
         CHECK(even.get(3) == 1);
 
         // odd
         DoublyLinkedList<int> odd;
-        int odd_vals[] = {5, 6, 7};
-        for (int idx = 0; idx < 3; ++idx) odd.insertAtTail(odd_vals[idx]); // [5,6,7]
+        for (int i : {5,6,7}) odd.insertAtTail(i);           // [5,6,7]
         odd.reverse();                                       // [7,6,5]
         CHECK(odd.get(0) == 7);
         CHECK(odd.get(2) == 5);
@@ -229,20 +225,23 @@ TEST_SUITE("DoublyLinkedList - Extended Tests")
 
     /* --------------------------------------------------------------------- */
     TEST_CASE("Iterator in range-based for loop")
-    {
-        DoublyLinkedList<int> list;
-        list.insertAtTail(8);
-        list.insertAtTail(6);
-        list.insertAtTail(4);   // [8,6,4]
+{
+    DoublyLinkedList<int> list;
+    list.insertAtTail(8);
+    list.insertAtTail(6);
+    list.insertAtTail(4);   // [8,6,4]
 
-        int expected_vals[] = {8, 6, 4};
-        int idx = 0;
-        for (int x : list)
-        {
-            CHECK(x == expected_vals[idx++]);
-        }
-        CHECK(idx == 3);
+    // Collect iteration output without std::vector
+    std::ostringstream oss;
+    bool first = true;
+    for (int x : list) {
+        if (!first) oss << ',';
+        first = false;
+        oss << x;
     }
+    CHECK(oss.str() == "8,6,4");
+}
+
 
     /* --------------------------------------------------------------------- */
     TEST_CASE("toString with default convert2str = nullptr")
@@ -258,8 +257,7 @@ TEST_SUITE("DoublyLinkedList - Extended Tests")
     TEST_CASE("Copy constructor and assignment operator (deep copy)")
     {
         DoublyLinkedList<int> src;
-        int src_vals[] = {1, 2, 3};
-        for (int idx = 0; idx < 3; ++idx) src.insertAtTail(src_vals[idx]);
+        for (int i : {1,2,3}) src.insertAtTail(i);
 
         // copy-constructor
         DoublyLinkedList<int> copy(src);
@@ -282,13 +280,13 @@ TEST_SUITE("DoublyLinkedList - Extended Tests")
         temp.insertAtTail(99);
 
         // move-constructor
-        DoublyLinkedList<int> moved(static_cast<DoublyLinkedList<int>&&>(temp));
+        DoublyLinkedList<int> moved(std::move(temp));
         CHECK(moved.size() == 1);
         CHECK(moved.get(0) == 99);
 
         // move-assignment
         DoublyLinkedList<int> target;
-        target = static_cast<DoublyLinkedList<int>&&>(moved);
+        target = std::move(moved);
         CHECK(target.size() == 1);
         CHECK(target.get(0) == 99);
     }
@@ -310,8 +308,7 @@ TEST_SUITE("DoublyLinkedList - Extended Tests")
     TEST_CASE("Self-reverse twice returns original order")
     {
         DoublyLinkedList<int> list;
-        int vals[] = {2, 4, 6, 8};
-        for (int idx = 0; idx < 4; ++idx) list.insertAtTail(vals[idx]);
+        for (int x : {2,4,6,8}) list.insertAtTail(x);
         auto first = list.toString();
 
         list.reverse();   // reversed

@@ -1,5 +1,5 @@
 #include "doctest/doctest.h"
-#include "src/DoublyLinkedList.h"
+#include "include/DoublyLinkedList.h"
 
 TEST_SUITE("DoublyLinkedList Iterator")
 {
@@ -33,55 +33,61 @@ TEST_SUITE("DoublyLinkedList Iterator")
         }
     }
 
+    /* --------------------------------------------------------------------- */
     TEST_CASE("Backward iteration using operator--")
     {
         DoublyLinkedList<int> list;
-        int init_vals1[] = {1, 2, 3, 4};
-        for (int idx = 0; idx < 4; ++idx) list.insertAtTail(init_vals1[idx]); // [1,2,3,4]
+        // avoid initializer_list loop to prevent extra headers
+        list.insertAtTail(1);
+        list.insertAtTail(2);
+        list.insertAtTail(3);
+        list.insertAtTail(4);     // [1,2,3,4]
 
-        auto it = list.end();   // tail sentinel
+        auto it = list.end();     // tail sentinel
         int expected[] = {4, 3, 2, 1};
         int idx = 0;
 
         while (it != list.begin())
         {
-            --it;                                   // move to valid node
+            --it;                 // step back onto valid node
             CHECK(*it == expected[idx++]);
         }
         CHECK(idx == 4);
     }
 
-    TEST_CASE("Iterator manual sum and search")
+    /* --------------------------------------------------------------------- */
+    TEST_CASE("Iterator works without <algorithm>/<numeric>")
     {
         DoublyLinkedList<int> list;
-        int vals[] = {5, 10, 15, 20};
-        for (int idx = 0; idx < 4; ++idx) list.insertAtTail(vals[idx]);
+        list.insertAtTail(5);
+        list.insertAtTail(10);
+        list.insertAtTail(15);
+        list.insertAtTail(20);
 
         // manual accumulate
         int sum = 0;
-        for (auto it = list.begin(); it != list.end(); ++it) sum += *it;
+        for (auto it = list.begin(); it != list.end(); ++it)
+            sum += *it;
         CHECK(sum == 50);
 
         // manual find
         bool found = false;
+        int foundValue = 0;
         for (auto it = list.begin(); it != list.end(); ++it)
         {
-            if (*it == 15)
-            {
-                found = true;
-                CHECK(*it == 15);
-                break;
-            }
+            if (*it == 15) { found = true; foundValue = *it; break; }
         }
         CHECK(found);
+        CHECK(foundValue == 15);
     }
 
+    /* --------------------------------------------------------------------- */
     TEST_CASE("Const list iteration")
     {
         DoublyLinkedList<int> tmp;
-        int tmp_vals[] = {7, 8};
-        for (int idx = 0; idx < 2; ++idx) tmp.insertAtTail(tmp_vals[idx]);
-        const DoublyLinkedList<int>& list = tmp;    // binding const
+        tmp.insertAtTail(7);
+        tmp.insertAtTail(8);
+        const DoublyLinkedList<int>& list = tmp;    // bind const
 
         int product = 1;
         for (auto it = list.begin(); it != list.end(); ++it)
@@ -90,29 +96,34 @@ TEST_SUITE("DoublyLinkedList Iterator")
         CHECK(product == 56);                       // 7*8
     }
 
+    /* --------------------------------------------------------------------- */
     TEST_CASE("Iterate empty list safely")
     {
         DoublyLinkedList<int> empty;
-        CHECK(empty.begin() == empty.end());        // both point to sentinel
-        for (int v : empty)
-            CHECK(false);                           // should not enter
+        CHECK(empty.begin() == empty.end());        // both at dummy
+        int count = 0;
+        for (int v : empty) { (void)v; ++count; }
+        CHECK(count == 0);                          // loop body never runs
     }
 
+    /* --------------------------------------------------------------------- */
     TEST_CASE("Iterator validity after external deleteAt")
     {
         DoublyLinkedList<int> list;
-        int init_vals2[] = {1, 2, 3};
-        for (int idx = 0; idx < 3; ++idx) list.insertAtTail(init_vals2[idx]);   // [1,2,3]
+        list.insertAtTail(1);
+        list.insertAtTail(2);
+        list.insertAtTail(3);   // [1,2,3]
 
         auto it = list.begin();     // points to 1
-        list.deleteAt(1);           // remove element 2
+        list.deleteAt(1);           // remove middle element (2)
 
-        CHECK(*it == 1);            // iterator still valid on node 1
-        ++it;                       // move to next (now 3)
+        CHECK(*it == 1);            // still valid at 1
+        ++it;                       // now points to 3
         CHECK(it != list.end());
         CHECK(*it == 3);
     }
 
+    /* --------------------------------------------------------------------- */
     TEST_CASE("Equality & inequality of iterators")
     {
         DoublyLinkedList<char> list;
@@ -126,7 +137,6 @@ TEST_SUITE("DoublyLinkedList Iterator")
         ++it2;
         CHECK(it1 != it2);          // different nodes
         --it2;
-        CHECK(it1 == it2);          // back to start
+        CHECK(it1 == it2);          // back to first
     }
 }
-
