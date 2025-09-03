@@ -19,7 +19,7 @@ private:
 
     Node *head; // Dummy head
     Node *tail; // Dummy tail
-    int length;
+    int length=0;
 
 public:
     DoublyLinkedList();
